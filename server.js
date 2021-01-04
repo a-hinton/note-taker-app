@@ -2,7 +2,7 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
-const database = require('./db/db.json');
+let database = require('./db/db.json');
 const path = require('path');
 
 // Runs server
@@ -27,6 +27,7 @@ app.get("/api/notes", function(request, result) {
 
 // Post new note and validate there is data to send
 app.post("/api/notes", function(request, result) {
+    console.log(request.body)
     // Validate request body
     if(!request.body.title) {
       return result.json({error: "Missing required title"});
@@ -35,10 +36,10 @@ app.post("/api/notes", function(request, result) {
     // Copy request body and generate ID
     const note = {...request.body, id: uuidv4()}
   
-    // Push note to dbJSON array - saves data in memory
+    // Push note to database array - saves data in memory
     database.push(note);
   
-    // Saves data to file by persisting in memory variable dbJSON to db.json file.
+    // Saves data to file by persisting in memory variable database to db.json file.
     fs.writeFile(path.join(__dirname, "db.json"), JSON.stringify(database), (err) => {
       if (err) {
         return result.json({error: "Error writing to file"});
@@ -49,16 +50,20 @@ app.post("/api/notes", function(request, result) {
   });
 
 app.delete("/api/notes/:id", function(request, result) {
-  // create new array of notes with the selected note excluded
-  const newNotes = database.filter(note => note.id != result.params.id);
+  
+  console.log(`delete: ${request.params.id}`)
+  console.log({database})
 
-  // write the new array to the database file
+  // Assign new array to database excluding the selected note
+  database = database.filter(note => note.id != request.params.id);
+
+  // write the new array to the database JSON file
   fs.writeFile(path.join(__dirname, "db.json"), JSON.stringify(database), (err) => {
     if (err) {
       return result.json({error: "Error writing to file"});
     }
 
-    return result.json(newNotes);
+    return result.json(database);
   });
 })
 
