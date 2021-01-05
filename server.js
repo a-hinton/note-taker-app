@@ -40,7 +40,7 @@ app.post("/api/notes", function(request, result) {
     database.push(note);
   
     // Saves data to file by persisting in memory variable database to db.json file.
-    fs.writeFile(path.join(__dirname, "db.json"), JSON.stringify(database), (err) => {
+    fs.writeFile(path.join(__dirname, "./db/db.json"), JSON.stringify(database), (err) => {
       if (err) {
         return result.json({error: "Error writing to file"});
       }
@@ -58,7 +58,7 @@ app.delete("/api/notes/:id", function(request, result) {
   database = database.filter(note => note.id != request.params.id);
 
   // write the new array to the database JSON file
-  fs.writeFile(path.join(__dirname, "db.json"), JSON.stringify(database), (err) => {
+  fs.writeFile(path.join(__dirname, "./db/db.json"), JSON.stringify(database), (err) => {
     if (err) {
       return result.json({error: "Error writing to file"});
     }
